@@ -1,49 +1,80 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchCount } from './authAPI';
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { checkUser, createUser, singOut } from "./authAPI";
+import { updateUser } from "../user/userAPI";
 
 const initialState = {
-  value: 0,
-  status: 'idle',
+  userLgoin: null,
+  status: false,
+  error: null,
 };
 
-
-export const incrementAsync = createAsyncThunk(
-  'counter/fetchCount',
-  async (amount) => {
-    const response = await fetchCount(amount);
-    // The value we return becomes the `fulfilled` action payload
+export const createUserAsync = createAsyncThunk(
+  "auth/createUserAsync",
+  async (userData) => {
+    const response = await createUser(userData);
     return response.data;
   }
 );
-
+export const checkUserAsync = createAsyncThunk(
+  "auth/checkUserAsync",
+  async (userData) => {
+    const response = await checkUser(userData);
+    return response.data;
+  }
+);
+export const updateUserAsync = createAsyncThunk(
+  "auth/updateUserAsync",
+  async (updateUsers) => {
+    const response = await updateUser(updateUsers);
+    return response.data;
+  }
+);
+export const singOutAsync = createAsyncThunk(
+  "auth/singOutAsync",
+  async (userData) => {
+    const response = await singOut(userData);
+    return response.data;
+  }
+);
 export const authSlice = createSlice({
-  name: 'counter',
+  name: "auth ",
   initialState,
-  reducers: {
-    increment: (state) => {
-      state.value += 1;
-    },
-    decrement: (state) => {
-      state.value -= 1;
-    },
-    incrementByAmount: (state, action) => {
-      state.value += action.payload;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(incrementAsync.pending, (state) => {
-        state.status = 'loading';
+      .addCase(createUserAsync.pending, (state) => {
+        state.status = true;
       })
-      .addCase(incrementAsync.fulfilled, (state, action) => {
-        state.status = 'idle';
-        state.value += action.payload;
+      .addCase(createUserAsync.fulfilled, (state, action) => {
+        state.status = false;
+        state.userLgoin = action.payload;
+      })
+      .addCase(checkUserAsync.pending, (state) => {
+        state.status = true;
+      })
+      .addCase(checkUserAsync.fulfilled, (state, action) => {
+        state.status = false;
+        state.userLgoin = action.payload;
+      })
+      .addCase(checkUserAsync.rejected, (state, action) => {
+        state.status = true;
+        state.error = action.error;
+      })
+      .addCase(updateUserAsync.pending, (state) => {
+        state.status = true;
+      })
+      .addCase(updateUserAsync.fulfilled, (state, action) => {
+        state.status = false;
+        state.userLgoin = action.payload;
+      })
+      .addCase(singOutAsync.pending, (state) => {
+        state.status = true;
+      })
+      .addCase(singOutAsync.fulfilled, (state, action) => {
+        state.status = false;
+        state.userLgoin = null;
       });
   },
 });
-
-export const { increment } = authSlice.actions;
-
-export const selectCount = (state) => state.counter.value;
 
 export default authSlice.reducer;
